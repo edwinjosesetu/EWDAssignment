@@ -138,10 +138,10 @@ export class RestAPIStack extends cdk.Stack {
           timeout: cdk.Duration.seconds(10),
           memorySize: 128,
           environment: {
-            TABLE_NAME: movieReviewsTable.tableName,
-            REGION: "eu-west-1",
+              TABLE_NAME: movieReviewsTable.tableName,
+              REGION: "eu-west-1",
           },
-        });
+      });
         
         new custom.AwsCustomResource(this, "moviesddbInitData", {
           onCreate: {
@@ -188,7 +188,7 @@ export class RestAPIStack extends cdk.Stack {
         movieCastsTable.grantReadData(getMovieByIdFn);
 
         movieReviewsTable.grantReadData(getMovieReviewsFn);
-        movieReviewsTable.grantWriteData(addMovieReviewFn);
+        movieReviewsTable.grantReadWriteData(addMovieReviewFn);
 
         // REST API 
     const api = new apig.RestApi(this, "RestAPI", {
@@ -246,6 +246,6 @@ export class RestAPIStack extends cdk.Stack {
     reviewsEndpoint.addMethod(
       "POST",
       new apig.LambdaIntegration(addMovieReviewFn, { proxy: true })
-    );
+  );
     }
   }
