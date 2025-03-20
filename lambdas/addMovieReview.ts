@@ -32,7 +32,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
                 }),
             };
         }
-        body.reviewId = Date.now();
+        body.reviewId =  Math.floor(Date.now() / 1000) % 10000;
+        console.log(body)
 
         await ddbDocClient.send(
             new PutCommand({
