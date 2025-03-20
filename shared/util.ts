@@ -1,7 +1,7 @@
 import { marshall } from "@aws-sdk/util-dynamodb";
-import { Movie, MovieCast } from "./types";
+import {MovieReviews} from "../shared/types";
 
-type Entity = Movie | MovieCast;  // NEW
+type Entity = MovieReviews  // NEW
 export const generateItem = (entity: Entity) => {
   return {
     PutRequest: {
@@ -15,22 +15,3 @@ export const generateBatch = (data: Entity[]) => {
     return generateItem(e);
   });
 };
-
-export function generateBatchesForReviews(reviews: any[], batchSize = 25) {
-  const batches = [];
-  for (let i = 0; i < reviews.length; i += batchSize) {
-    const batch = reviews.slice(i, i + batchSize).map((review) => ({
-      PutRequest: {
-        Item: {
-          movieId: { N: review.movieId.toString() },
-          reviewId: { N: review.reviewId.toString() },
-          reviewerId: { S: review.reviewerId },
-          reviewDate: { S: review.reviewDate },
-          content: { S: review.content },
-        },
-      },
-    }));
-    batches.push(batch);
-  }
-  return batches;
-}
