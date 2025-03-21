@@ -37,8 +37,8 @@ export const handler: APIGatewayProxyHandlerV2 = async (event) => {
             if (queryParams.reviewId) {
                 reviews = reviews.filter((reviews) => reviews.reviewId.toString() === queryParams.reviewId);
             }
-            if (queryParams.reviewerName) {
-                reviews = reviews.filter((reviews) => reviews.reviewerId === queryParams.reviewerName);
+            if (queryParams.reviewerId) {
+                reviews = reviews.filter((reviews) => reviews.reviewerId === queryParams.reviewerId);
             }
         }
 
