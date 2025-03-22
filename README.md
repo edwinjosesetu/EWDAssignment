@@ -17,10 +17,10 @@ There are endpoints through which the users are able to add, update, get, and fe
 
 ### App API endpoints  
 
-- *GET* /movie/reviews/{movieId} - Fetch all the reviews for the specified movie. It also accepts an optional query string that specifies a review ID or reviewer identity (email address), e.g.,?reviewId=1234 or?reviewerName=joe@gmail.com.  
-- *POST* /movie/protected/reviews - Add a movie review. Only authenticated users can post a review.  
+- *GET* /movies/reviews/{movieId} - Fetch all the reviews for the specified movie. It also accepts an optional query string that specifies a review ID or reviewer identity (email address), e.g.,?reviewId=1234 or?reviewerId=joe@gmail.com.  
+- *POST* //movies/reviews - Add a movie review. Only authenticated users can post a review.  
 - *GET* /reviews/{reviewId}/{movieId}/translation - Requires an optional parameter "language" for translation. The language code must be provided as input.  
-- *PUT* /movie/reviews/{movieId}/protected/reviews/{reviewId} - Update a review for a specific movie. Only authenticated users can update a review.  
+- *PUT* /movies/{movieId}/reviews/{reviewId} - Update a review for a specific movie. Only authenticated users can update a review.  
 
 ### Features  
 
