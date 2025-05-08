@@ -40,6 +40,5 @@ export class RestAPIStack extends cdk.Stack {
       userPoolId: userPoolId,
       userPoolClientId: userPoolClientId,
     } );
-
   } 
 }
