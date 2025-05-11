@@ -23,3 +23,12 @@ export type SignInBody = {
   username: string;
   password: string;
 }
+
+export type FrontEndReview = {        
+    ReviewId?: string;      
+    Writer: string;        
+    Review: string;    
+    Rating: string;        
+    Name: string;     
+    Photo: string;     
+};

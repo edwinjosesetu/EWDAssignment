@@ -12,10 +12,10 @@ import * as iam from 'aws-cdk-lib/aws-iam'
 import * as node from "aws-cdk-lib/aws-lambda-nodejs"
 
 type AppApiProps = {
-    userPoolId: string;
-    userPoolClientId: string;
-  };
-  
+  userPoolId: string;
+  userPoolClientId: string;
+};
+
 
 export class AppApi extends Construct {
 
@@ -31,6 +31,14 @@ export class AppApi extends Construct {
       sortKey: { name: "reviewId", type: dynamodb.AttributeType.NUMBER },
       removalPolicy: cdk.RemovalPolicy.DESTROY,
       tableName: "MovieReviews"
+    });
+
+    //table for frontend
+    const reviewsTable = new dynamodb.Table(this, "FavouriteReviewsTable", {
+      partitionKey: { name: "ReviewId", type: dynamodb.AttributeType.STRING },
+      billingMode: dynamodb.BillingMode.PAY_PER_REQUEST,
+      removalPolicy: cdk.RemovalPolicy.DESTROY,
+      tableName: "FavouriteReviewsTable",
     });
 
     // Functions 
@@ -75,6 +83,23 @@ export class AppApi extends Construct {
       entry: `${__dirname}/../lambdas/getTranslatedReviews.ts`,
 
     });
+
+    // Create the postMovieReviews Lambda function
+    const addFrontendReview = new node.NodejsFunction(this, "AddFrontendReview", {
+      ...commonProps,
+      entry: `${__dirname}/../lambdas/addReview.ts`,
+      environment: {
+        REVIEWS_TABLE_NAME: reviewsTable.tableName,
+      },
+    });
+    const getFrontendReview = new node.NodejsFunction(this, "GetFrontendReview", {
+      ...commonProps,
+      entry: `${__dirname}/../lambdas/getReview.ts`,
+      environment: {
+        REVIEWS_TABLE_NAME: reviewsTable.tableName,
+      },
+    });
+
 
     new custom.AwsCustomResource(this, `moviesReviewInitData`, {
       onCreate: {
@@ -122,6 +147,8 @@ export class AppApi extends Construct {
     movieReviewsTable.grantReadWriteData(addMovieReviewFn);
     movieReviewsTable.grantReadWriteData(updateReviewFn);
     movieReviewsTable.grantReadData(getTranslatedReview);
+    reviewsTable.grantWriteData(addFrontendReview);
+    reviewsTable.grantReadData(getFrontendReview);
 
     // REST API 
     const api = new apig.RestApi(this, "RestAPI", {
@@ -145,6 +172,7 @@ export class AppApi extends Construct {
     const specificReviewEndpoint = reviewsEndpoint.addResource("{movieId}");
     const movieReviewsEndpoint = moviesEndpoint.addResource("{movieId}").addResource("reviews").addResource("{reviewId}");
     const translateMovieEndpoint = reviewRootEndpoint.addResource("{reviewId}").addResource("{movieId}").addResource("translation")
+    const reviewsResource = api.root.addResource("frontendreviews");
     specificReviewEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getMovieReviewsFn, { proxy: true })
@@ -168,6 +196,14 @@ export class AppApi extends Construct {
     translateMovieEndpoint.addMethod(
       "GET",
       new apig.LambdaIntegration(getTranslatedReview, { proxy: true })
+    );
+    reviewsResource.addMethod(
+      "POST",
+      new apig.LambdaIntegration(addFrontendReview, { proxy: true })
+    );
+    reviewsResource.addMethod(
+      "GET",
+      new apig.LambdaIntegration(getFrontendReview, { proxy: true })
     );
   }
 }
