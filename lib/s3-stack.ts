@@ -1,4 +1,6 @@
 import { CfnOutput, RemovalPolicy, Stack, StackProps } from "aws-cdk-lib";
+import { Distribution, ViewerProtocolPolicy } from "aws-cdk-lib/aws-cloudfront";
+import { S3Origin } from "aws-cdk-lib/aws-cloudfront-origins";
 import * as s3 from "aws-cdk-lib/aws-s3";
 import * as s3deploy from "aws-cdk-lib/aws-s3-deployment";
 import { Construct } from "constructs";
@@ -23,6 +25,18 @@ export class FrontendStack extends Stack {
 
     new CfnOutput(this, "WebsiteURL", {
       value: siteBucket.bucketWebsiteUrl,
+    });
+
+    const distribution = new Distribution(this, "SiteDistribution", {
+      defaultBehavior: {
+        origin: new S3Origin(siteBucket),
+        viewerProtocolPolicy: ViewerProtocolPolicy.REDIRECT_TO_HTTPS,
+      },
+      defaultRootObject: "index.html",
+    });
+    
+    new CfnOutput(this, "clodfrnt", {
+      value: distribution.distributionDomainName,
     });
   }
 }
